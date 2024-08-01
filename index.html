@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Macronutrient Analyzer</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #000000);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .background-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: url('https://www.transparenttextures.com/patterns/food.png') repeat;
+            opacity: 0.1;
+            animation: slide 60s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { background-position: 0 0; }
+            100% { background-position: 1000px 1000px; }
+        }
+
+        header {
+            margin-bottom: 20px;
+            text-align: center;
+            animation: fadeIn 1.5s;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #00e676;
+            animation: fadeIn 2s;
+            font-family: 'Pacifico', cursive;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            font-size: 1.2rem;
+        }
+
+        .upload-section, .camera-section, .result-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: slideIn 1.5s;
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            padding: 15px 25px;
+            cursor: pointer;
+            background: #00e676;
+            color: #1a1a1a;
+            border-radius: 50px;
+            margin-bottom: 10px;
+            transition: background 0.3s, transform 0.3s;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4);
+        }
+
+        .custom-file-upload:hover {
+            background: #00c853;
+            box-shadow: 0 8px 20px rgba(0, 230, 118, 0.6);
+            transform: scale(1.05);
+        }
+
+        #cameraButton, #captureButton {
+            padding: 15px 25px;
+            cursor: pointer;
+            background: #00e676;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 50px;
+            transition: background 0.3s, transform 0.3s;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4);
+        }
+
+        #cameraButton:hover, #captureButton:hover {
+            background: #00c853;
+            box-shadow: 0 8px 20px rgba(0, 230, 118, 0.6);
+            transform: scale(1.05);
+        }
+
+        #cameraStream {
+            display: none;
+            margin-top: 10px;
+            border: 2px solid #00e676;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4);
+        }
+
+        #cameraStream.active {
+            display: block;
+        }
+
+        #cameraCapture {
+            display: none;
+        }
+
+        #result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            text-align: center;
+            animation: fadeIn 2s;
+            box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4);
+        }
+
+        #result img {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4);
+            animation: popIn 1s;
+        }
+
+        .loading-spinner {
+            display: none;
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #00e676;
+            width: 80px;
+            height: 80px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1rem;
+            color: #00e676;
+            animation: fadeIn 1.5s;
+        }
+
+        .encouraging-message {
+            position: absolute;
+            bottom: 10%;
+            font-size: 1rem;
+            color: #00e676;
+            animation: fadeInOut 5s ease-in-out infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .chat-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #ff9800;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .chat-button:hover {
+            background: #fb8c00;
+            transform: scale(1.1);
+        }
+
+        .chat-section {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 300px;
+            max-height: 500px;
+            background: #ff9800;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+            flex-direction: column;
+            animation: slideIn 1.5s;
+        }
+
+        .chat-section.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: #ff9800;
+            color: #fff;
+            padding: 10px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .clear-chat {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            background: #fff;
+            padding: 10px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+            word-wrap: break-word;
+        }
+
+        .chat-box .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            animation: fadeIn 1s;
+            max-width: 80%; /* Ensure messages do not exceed the chat box width */
+        }
+
+        .chat-box .message.user {
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+            color: #fff;
+            align-self: flex-end;
+        }
+
+        .chat-box .message.bot {
+            background: linear-gradient(135deg, #FF9800, #FFB74D);
+            color: #fff;
+            align-self: flex-start;
+        }
+
+        .chat-input {
+            display: flex;
+            width: 100%;
+            padding: 10px;
+            background: #2196F3;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px 0 0 10px;
+            outline: none;
+            font-size: 1rem;
+            max-width: 70%; /* Prevent input from extending outside chat box */
+        }
+
+        .chat-input button {
+            padding: 10px 20px;
+            background: #2196F3;
+            border: none;
+            border-radius: 0 10px 10px 0;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .chat-input button:hover {
+            background: #1976D2;
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Typing Indicator */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    padding: 10px;
+    background: linear-gradient(135deg, #FF9800, #FFB74D);
+    border-radius: 10px;
+    color: #fff;
+    animation: fadeIn 1s;
+    font-size: 0.9rem;
+    max-width: 80%;
+    align-self: flex-start;
+}
+    .typing-indicator .dots {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 10px;
+    }
+
+    .typing-indicator .dot {
+        width: 8px;
+        height: 8px;
+        margin: 0 2px;
+        background-color: #fff;
+        border-radius: 50%;
+        animation: blink 1s infinite;
+    }
+
+    .typing-indicator .dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-indicator .dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes blink {
+        0%, 100% {
+            opacity: 0.2;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
+    </style>
+</head>
+
+
+<body>
+    <div class="background-animation"></div>
+    <header>
+        <h1>Food Macronutrient Analyzer</h1>
+    </header>
+    <main>
+        <div class="upload-section">
+            <label for="imageInput" class="custom-file-upload">
+                <input type="file" id="imageInput" accept="image/*">
+                Upload Image
+            </label>
+            <button id="cameraButton">Open Camera</button>
+        </div>
+        <div class="camera-section">
+            <video id="cameraStream" autoplay></video>
+            <canvas id="cameraCapture"></canvas>
+            <button id="captureButton">Capture</button>
+        </div>
+        <div class="loading-spinner" id="loadingSpinner"></div>
+        <section id="result" class="result-section"></section>
+        <div class="chat-button" id="chatButton">💬</div>
+        <div class="chat-section" id="chatSection">
+            <div class="chat-header">Chat with Us!
+                <button class="clear-chat" id="clearChat">Clear</button>
+            </div>
+            <div class="chat-box" id="chatBox"></div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Type your message...">
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+    </main>
+    <footer>
+        Created by Florian. This site is part of a bigger project. 
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
